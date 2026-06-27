@@ -8,23 +8,18 @@ interface AuthFormProps {
 }
 
 export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
-  // Navigation tabs: 'email' | 'phone'
-  const [authMethod, setAuthMethod] = useState<'email' | 'phone'>('email')
   const [isSignUp, setIsSignUp] = useState(false)
   
   // Form fields
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [phone, setPhone] = useState('')
-  const [otpToken, setOtpToken] = useState('')
-  const [otpSent, setOtpSent] = useState(false)
 
   // Feedback states
   const [errorMsg, setErrorMsg] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
   const [loading, setLoading] = useState(false)
 
-  // 1. Handle Email & Password Authentication
+  // Handle Email & Password Authentication
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrorMsg('')
@@ -54,30 +49,7 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
     setLoading(false)
   }
 
-  // 2. Handle Phone Sign In (SMS OTP)
-  const handlePhoneSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setErrorMsg('')
-    setSuccessMsg('')
-    setLoading(true)
-
-    if (!otpSent) {
-      const { error } = await supabase.auth.signInWithOtp({ phone })
-      if (error) {
-        setErrorMsg(error.message)
-      } else {
-        setOtpSent(true)
-        setSuccessMsg('📱 SMS code sent! Check your device messages.')
-      }
-    } else {
-      const { error } = await supabase.auth.verifyOtp({ phone, token: otpToken, type: 'sms' })
-      if (error) setErrorMsg(error.message)
-      else onAuthSuccess()
-    }
-    setLoading(false)
-  }
-
-  // 3. Handle Google Authentication
+  // Handle Google Authentication (Entirely Free Provider)
   const handleGoogleSignIn = async () => {
     setErrorMsg('')
     const { error } = await supabase.auth.signInWithOAuth({
@@ -110,7 +82,7 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
           display: 'flex', flexDirection: 'column', alignItems: 'center', boxSizing: 'border-box'
         }}
       >
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <h1 style={{ margin: 0, fontSize: '3rem', fontWeight: 800, color: '#14b8a6', letterSpacing: '-0.05em', textShadow: '0 4px 12px rgba(20, 184, 166, 0.25)' }}>
             The Hook
           </h1>
@@ -130,58 +102,23 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
           </div>
         )}
 
-        <div style={{ display: 'flex', width: '100%', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '12px', padding: '4px', marginBottom: '24px', boxSizing: 'border-box' }}>
-          <button 
-            onClick={() => { setAuthMethod('email'); setErrorMsg(''); setSuccessMsg(''); }}
-            style={{ flex: 1, padding: '10px', background: authMethod === 'email' ? '#14b8a6' : 'transparent', color: '#ffffff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
-          >
-            Email
+        <form onSubmit={handleEmailSubmit} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '20px', boxSizing: 'border-box' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <label style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', color: '#94a3b8', textTransform: 'uppercase' }}>Email Address</label>
+            <input type="email" required placeholder="angler@example.com" value={email} onChange={(e) => setEmail(e.target.value)} style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.15)', backgroundColor: 'rgba(255, 255, 255, 0.08)', color: '#ffffff', outline: 'none', fontSize: '16px', boxSizing: 'border-box' }} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <label style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', color: '#94a3b8', textTransform: 'uppercase' }}>Password</label>
+            <input type="password" required placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.15)', backgroundColor: 'rgba(255, 255, 255, 0.08)', color: '#ffffff', outline: 'none', fontSize: '16px', boxSizing: 'border-box' }} />
+          </div>
+          <button type="submit" disabled={loading} style={{ width: '100%', marginTop: '4px', padding: '14px', backgroundColor: '#14b8a6', color: '#ffffff', fontWeight: 700, fontSize: '16px', borderRadius: '12px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 14px rgba(20, 184, 166, 0.35)' }}>
+            {loading ? 'Processing...' : isSignUp ? 'Create Account' : 'Log In'}
           </button>
-          <button 
-            onClick={() => { setAuthMethod('phone'); setErrorMsg(''); setSuccessMsg(''); }}
-            style={{ flex: 1, padding: '10px', background: authMethod === 'phone' ? '#14b8a6' : 'transparent', color: '#ffffff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
-          >
-            Cell Phone
-          </button>
-        </div>
-
-        {authMethod === 'email' && (
-          <form onSubmit={handleEmailSubmit} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '20px', boxSizing: 'border-box' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <label style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', color: '#94a3b8', textTransform: 'uppercase' }}>Email Address</label>
-              <input type="email" required placeholder="angler@example.com" value={email} onChange={(e) => setEmail(e.target.value)} style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.15)', backgroundColor: 'rgba(255, 255, 255, 0.08)', color: '#ffffff', outline: 'none', fontSize: '16px', boxSizing: 'border-box' }} />
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <label style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', color: '#94a3b8', textTransform: 'uppercase' }}>Password</label>
-              <input type="password" required placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.15)', backgroundColor: 'rgba(255, 255, 255, 0.08)', color: '#ffffff', outline: 'none', fontSize: '16px', boxSizing: 'border-box' }} />
-            </div>
-            <button type="submit" disabled={loading} style={{ width: '100%', marginTop: '4px', padding: '14px', backgroundColor: '#14b8a6', color: '#ffffff', fontWeight: 700, fontSize: '16px', borderRadius: '12px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 14px rgba(20, 184, 166, 0.35)' }}>
-              {loading ? 'Processing...' : isSignUp ? 'Create Account' : 'Log In'}
-            </button>
-          </form>
-        )}
-
-        {authMethod === 'phone' && (
-          <form onSubmit={handlePhoneSubmit} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '20px', boxSizing: 'border-box' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <label style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', color: '#94a3b8', textTransform: 'uppercase' }}>Cell Phone Number</label>
-              <input type="tel" required placeholder="+11234567890" disabled={otpSent} value={phone} onChange={(e) => setPhone(e.target.value)} style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.15)', backgroundColor: 'rgba(255, 255, 255, 0.08)', color: '#ffffff', outline: 'none', fontSize: '16px', boxSizing: 'border-box', opacity: otpSent ? 0.5 : 1 }} />
-            </div>
-            {otpSent && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <label style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', color: '#94a3b8', textTransform: 'uppercase' }}>Enter 6-Digit SMS Code</label>
-                <input type="text" required placeholder="123456" value={otpToken} onChange={(e) => setOtpToken(e.target.value)} style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.15)', backgroundColor: 'rgba(255, 255, 255, 0.08)', color: '#ffffff', outline: 'none', fontSize: '16px', boxSizing: 'border-box' }} />
-              </div>
-            )}
-            <button type="submit" disabled={loading} style={{ width: '100%', marginTop: '4px', padding: '14px', backgroundColor: '#14b8a6', color: '#ffffff', fontWeight: 700, fontSize: '16px', borderRadius: '12px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 14px rgba(20, 184, 166, 0.35)' }}>
-              {loading ? 'Processing...' : otpSent ? 'Verify Code & Log In' : 'Send Text Code'}
-            </button>
-          </form>
-        )}
+        </form>
 
         <div style={{ display: 'flex', alignItems: 'center', width: '100%', margin: '24px 0 16px 0' }}>
           <div style={{ flex: 1, height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.1)' }} />
-          <span style={{ padding: '0 10px', fontSize: '12px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Or Continue With</span>
+          <span style={{ padding: '0 10px', fontSize: '12px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Or</span>
           <div style={{ flex: 1, height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.1)' }} />
         </div>
 
@@ -202,19 +139,17 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
             <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
           </svg>
-          Google Account
+          Sign In with Google
         </button>
 
-        {authMethod === 'email' && (
-          <div style={{ width: '100%', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', textAlign: 'center' }}>
-            <button
-              onClick={() => { setIsSignUp(!isSignUp); setErrorMsg(''); setSuccessMsg(''); }}
-              style={{ background: 'none', border: 'none', color: '#38bdf8', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}
-            >
-              {isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
-            </button>
-          </div>
-        )}
+        <div style={{ width: '100%', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', textAlign: 'center' }}>
+          <button
+            onClick={() => { setIsSignUp(!isSignUp); setErrorMsg(''); setSuccessMsg(''); }}
+            style={{ background: 'none', border: 'none', color: '#38bdf8', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}
+          >
+            {isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
+          </button>
+        </div>
       </div>
     </div>
   )
