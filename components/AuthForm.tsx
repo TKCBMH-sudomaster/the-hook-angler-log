@@ -32,44 +32,88 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
   }
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden font-sans">
-      
-      {/* 1. Fullscreen Looping Background Video */}
+    <div 
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        zIndex: 99999,
+        overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#000000'
+      }}
+    >
+      {/* 1. Fullscreen Looping Video - Forces full screen edge-to-edge resolution */}
       <video
         autoPlay
         loop
         muted
         playsInline
-        className="absolute top-0 left-0 w-full h-full object-cover z-0"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          zIndex: 1
+        }}
       >
         <source src="/fishing-river.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 
-      {/* 2. Dark Tint Overlay (Ensures text contrast remains perfectly readable) */}
-      <div className="absolute top-0 left-0 w-full h-full bg-black/50 z-10" />
+      {/* 2. Heavy Contrast Dimming Shield - Makes text incredibly sharp and readable */}
+      <div 
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'rgba(0, 0, 0, 0.45)',
+          zIndex: 2
+        }}
+      />
 
-      {/* 3. Centered Glassmorphism Login Card Container */}
-      <div className="relative z-20 w-full max-w-md mx-4 p-8 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 transition-all duration-300">
-        
+      {/* 3. The Centered Login Card Container - Placed directly on top of video */}
+      <div 
+        className="font-sans"
+        style={{
+          position: 'relative',
+          zIndex: 3,
+          width: '100%',
+          maxWidth: '420px',
+          margin: '0 20px',
+          padding: '40px 32px',
+          backgroundColor: 'rgba(255, 255, 255, 0.96)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          borderRadius: '16px',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+          border: '1px solid rgba(255, 255, 255, 0.2)'
+        }}
+      >
         {/* Header branding */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-extrabold text-blue-600 tracking-tight drop-shadow-sm">
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+          <h1 className="text-4xl font-extrabold text-blue-600 tracking-tight" style={{ margin: 0 }}>
             The Hook
           </h1>
-          <p className="text-gray-500 font-medium mt-1">
+          <p className="text-gray-500 font-medium" style={{ marginTop: '4px', fontSize: '14px' }}>
             Angler Log • Track Every Catch
           </p>
         </div>
 
-        {/* Dynamic Error Messaging Alert box */}
         {errorMsg && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg font-medium">
             ⚠️ {errorMsg}
           </div>
         )}
 
-        {/* Input Interactive Form Elements */}
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
@@ -108,8 +152,7 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
           </button>
         </form>
 
-        {/* Toggle between register or login views */}
-        <div className="mt-6 pt-6 border-t border-gray-100 text-center">
+        <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid #f3f4f6', textAlign: 'center' }}>
           <button
             onClick={() => {
               setIsSignUp(!isSignUp)
