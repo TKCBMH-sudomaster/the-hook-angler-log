@@ -1,33 +1,57 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: "The Hook • Angler Log",
-  description: "Track every catch, log conditions, and master the water.",
-};
+  title: 'The Hook | Angler Log',
+  description: 'Log your catches and track your fishing adventures.',
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en">
+      <body 
+        className={inter.className} 
+        style={{ 
+          margin: 0, 
+          padding: 0, 
+          backgroundColor: '#021526', 
+          color: '#f8fafc',
+          minHeight: '100vh',
+          position: 'relative',
+          overflowX: 'hidden'
+        }}
+      >
+        {/* Background Video Layer */}
+        <video 
+          autoPlay 
+          loop 
+          muted 
+          playsInline 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            zIndex: -1
+          }}
+        >
+          {/* Ensure your video file is in the public folder */}
+          <source src="/background-video.mp4" type="video/mp4" />
+        </video>
+
+        {/* Content Layer */}
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          {children}
+        </div>
+      </body>
     </html>
-  );
+  )
 }
